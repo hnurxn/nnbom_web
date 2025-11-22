@@ -51,6 +51,7 @@ nav {
   align-items: center;
   height: var(--nav-height);
   padding: 0 20px;
+  position: static;
   background: var(--surface-transparent);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border-color);
