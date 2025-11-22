@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Repositories - NNBOM</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+	<link rel="stylesheet" href="assets/css/common.css">
+	<link rel="stylesheet" href="assets/css/repositories.css">
+</head>
+<body>
+	<div id="app">
+		<!-- Navigation Bar -->
+		<nav>
+			<div class="logo">
+				<i class="fas fa-cogs"></i> NNBOM
+			</div>
+			<div class="nav-links">
+				<a href="index.html">Home</a>
+				<a href="repositories.html">Repositories</a>
+				<a href="analytics">Analytics</a>
+				<a href="tools">Tools</a>
+			</div>
+		</nav>
+
+		<!-- Repositories Container -->
+		<div class="content-section">
+			<div class="controls">
+				<input class="control-input" type="text" v-model="q" placeholder="Search repository name or description" @keyup.enter="load(1)">
+				<select class="control-select" v-model="sortBy" @change="load(1)">
+					<option value="stars">Sort by Stars</option>
+					<option value="created_at">Sort by Created Time</option>
+					<option value="components">Sort by Total Components</option>
+					<option value="tpl">Sort by TPL Count</option>
+					<option value="ptm">Sort by PTM Count</option>
+					<option value="module">Sort by Module Count</option>
+				</select>
+				<select class="control-select" v-model.number="perPage" @change="load(1)">
+					<option :value="12">12 / page</option>
+					<option :value="24">24 / page</option>
+					<option :value="48">48 / page</option>
+				</select>
+			</div>
+
+			<div v-if="isLoading" class="empty-state loading-stack">
+				<div class="spin-loader"></div>
+				<p class="loading-text">Loading...</p>
+			</div>
+
+			<div v-else>
+				<div v-if="items.length===0" class="empty-state">
+					<p>No data available — try adjusting filters or refresh.</p>
+				</div>
+
+					<div v-else class="grid">
+						<div 
+							class="card repo-card" 
+							v-for="repo in items" 
+							:key="repo.id"
+							role="button"
+							tabindex="0"
+							@click="goToRepo(repo)"
+							@keydown.enter="goToRepo(repo)"
+						>
+							<div class="repo-header">
+								<div class="repo-icon">
+									<i class="fas fa-database"></i>
+								</div>
+								<div class="repo-title">
+									<div class="title">{{ repo.name }}</div>
+								</div>
+							</div>
+
+							<div class="domain-line" v-if="repo.domains && repo.domains.length">
+								<span class="domain-label">Domains:</span>
+								<div class="domain-tags">
+									<span class="domain-tag" v-for="domain in repo.domains" :key="domain">{{ domain }}</span>
+								</div>
+							</div>
+
+							<div class="metric-grid">
+								<div class="metric">
+									<div class="metric-top">
+										<div class="metric-icon"><i class="fas fa-star"></i></div>
+										<div class="metric-label">Stars</div>
+									</div>
+									<div class="metric-value">{{ repo.stars }}</div>
+								</div>
+								<div class="metric">
+									<div class="metric-top">
+										<div class="metric-icon"><i class="fas fa-code-branch"></i></div>
+										<div class="metric-label">Forks</div>
+									</div>
+									<div class="metric-value">{{ repo.forks }}</div>
+								</div>
+								<div class="metric">
+									<div class="metric-top">
+										<div class="metric-icon"><i class="fas fa-calendar-alt"></i></div>
+										<div class="metric-label">Created</div>
+									</div>
+									<div class="metric-value">{{ repo.created_at }}</div>
+								</div>
+								<div class="metric">
+									<div class="metric-top">
+										<div class="metric-icon"><i class="fas fa-cubes"></i></div>
+										<div class="metric-label">TPL</div>
+									</div>
+									<div class="metric-value">{{ repo.components.TPL }}</div>
+								</div>
+								<div class="metric">
+									<div class="metric-top">
+										<div class="metric-icon"><i class="fas fa-network-wired"></i></div>
+										<div class="metric-label">PTM</div>
+									</div>
+									<div class="metric-value">{{ repo.components.PTM }}</div>
+								</div>
+								<div class="metric">
+									<div class="metric-top">
+										<div class="metric-icon"><i class="fas fa-cog"></i></div>
+										<div class="metric-label">Module</div>
+									</div>
+									<div class="metric-value">{{ repo.components.Module }}</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				<div class="pagination" v-if="total>perPage">
+					<button class="page-btn" :disabled="page<=1" @click="load(page-1)">Previous</button>
+					<div>Page {{ page }} / {{ totalPages }}</div>
+					<button class="page-btn" :disabled="page>=totalPages" @click="load(page+1)">Next</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+	<script src="assets/js/repositories.js"></script>
+	<footer>
+		<p>© 2025 Your Company</p>
+	</footer>
+</body>
+</html>

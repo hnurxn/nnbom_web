@@ -1,0 +1,410 @@
+/* 首页特定样式 */
+.header { 
+  display: flex; 
+  gap: 16px; 
+  align-items: center; 
+  margin-bottom: 18px;
+}
+
+.brand h1 { 
+  font-size: 1.4rem; 
+  margin: 0;
+}
+
+.brand p { 
+  font-size: 0.9rem; 
+  opacity: 0.9; 
+  margin-top: 6px;
+}
+
+.hero { 
+  border-radius: 12px; 
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15); 
+  margin-bottom: 24px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.hero img { 
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+}
+
+.featured-repositories h2, 
+.dataset-snapshot > .snapshot-left h2, 
+.applications h2 { 
+  font-size: 1.5rem; 
+  margin-bottom: 16px;
+}
+
+.sort-bar { 
+  display: flex; 
+  gap: 12px; 
+  margin-bottom: 16px;
+}
+
+.sort-bar label { 
+  font-size: 0.9rem; 
+  align-self: center;
+}
+
+.sort-bar select { 
+  padding: 8px 10px; 
+  border-radius: 8px; 
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.repository-cards { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+  gap: 16px;
+}
+
+.repository-cards .card { 
+  background: var(--surface-color);
+  border-radius: 10px; 
+  padding: 14px; 
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+.repository-cards .card h3 { 
+  font-size: 1.1rem; 
+  margin-bottom: 8px;
+}
+
+.repository-cards .card p { 
+  color: var(--text-secondary);
+  font-size: 0.85rem; 
+  margin-bottom: 4px;
+}
+
+.view-all { 
+  display: inline-block; 
+  margin-top: 12px; 
+  padding: 10px 16px; 
+  border-radius: 8px; 
+  background: var(--primary-color);
+  color: var(--bg-color);
+  text-decoration: none; 
+  font-weight: 500;
+}
+
+.view-all:hover { 
+  opacity: 0.8;
+}
+
+/* Dataset Snapshot — Academic Two-Column Design */
+.dataset-snapshot {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: start;
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.snapshot-left h2 {
+  font-family: 'Merriweather', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin: 0 0 16px 0;
+  line-height: 1.3;
+  letter-spacing: -0.5px;
+}
+
+.snapshot-left .lead {
+  font-family: 'Noto Serif', serif;
+  color: var(--text-primary);
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin-bottom: 16px;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+.snapshot-media {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(9,20,40,0.05);
+}
+
+.snapshot-media img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
+}
+
+.snapshot-media iframe {
+  width: 100%;
+  height: 500px;
+  border: none;
+  border-radius: 8px;
+}
+
+.snapshot-media .caption {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  font-family: 'Noto Serif', serif;
+}
+
+.snapshot-left .detail {
+  margin-top: 8px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  font-family: 'Noto Serif', serif;
+}
+
+.snapshot-right .snapshot-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+
+/* Dataset Snapshot 下的四卡片横向并排 */
+.dataset-snapshot .snapshot-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  grid-column: 1 / -1;
+  margin-top: 8px;
+}
+
+.snapshot-card {
+  background: var(--surface-color);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(9,20,40,0.04), 0 0 20px rgba(43,108,176,0.03);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.snapshot-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 12px 32px rgba(43,108,176,0.18), 0 0 24px rgba(43,108,176,0.08);
+  border-color: var(--primary-color);
+}
+
+.snapshot-card-top {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.snapshot-icon {
+  font-size: 28px;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--hover-glow);
+  border-radius: 10px;
+  color: var(--primary-color);
+  flex-shrink: 0;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--border-color);
+}
+
+.snapshot-card:hover .snapshot-icon {
+  background: var(--primary-color);
+  color: var(--bg-color);
+  transform: scale(1.08) rotate(2deg);
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(100,255,218,0.2);
+}
+
+.snapshot-card-title {
+  font-weight: 700;
+  color: var(--text-heading);
+  font-family: 'Merriweather', serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.3px;
+  transition: color 0.35s ease;
+}
+
+.snapshot-card:hover .snapshot-card-title {
+  color: var(--primary-color);
+}
+
+.snapshot-card-count {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--hover-glow);
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 1.5rem;
+  display: inline-block;
+  font-family: 'Merriweather', serif;
+  transition: all 0.35s ease;
+  border: 1px solid var(--border-color);
+}
+
+.snapshot-card:hover .snapshot-card-count {
+  background: var(--primary-color);
+  color: var(--bg-color);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(100,255,218,0.15);
+}
+
+.snapshot-card-sub {
+  margin-top: 12px;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  font-family: 'Noto Serif', serif;
+  transition: color 0.35s ease;
+}
+
+.snapshot-card:hover .snapshot-card-sub {
+  color: var(--text-primary);
+}
+
+.snapshot-right .snapshot-meta {
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* Applications — 高级样式，和 dataset-snapshot 保持一致 */
+.applications {
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.applications h2 {
+  font-family: 'Merriweather', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin-bottom: 18px;
+  line-height: 1.25;
+}
+
+.application-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.application-cards .card {
+  background: var(--surface-color);
+  border-radius: 12px;
+  padding: 22px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 6px 20px rgba(9,20,40,0.04), 0 0 18px rgba(43,108,176,0.02);
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.application-cards .card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 40px rgba(43,108,176,0.12), 0 0 28px rgba(43,108,176,0.06);
+  border-color: var(--primary-color);
+}
+
+.application-cards .card h3 {
+  font-family: 'Merriweather', serif;
+  font-size: 1.05rem;
+  color: var(--text-heading);
+  margin: 0 0 10px 0;
+  letter-spacing: 0.2px;
+}
+
+.application-cards .card p {
+  color: var(--text-primary);
+  font-family: 'Noto Serif', serif;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+}
+
+.application-cards .card button {
+  display: inline-block;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--primary-color);
+  color: var(--bg-color);
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+}
+
+.application-cards .card button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(100,255,218,0.18);
+  opacity: 0.98;
+}
+
+/* Responsive: 在窄屏下每行 1 个 */
+@media (max-width: 900px) {
+  .application-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .dataset-snapshot {
+    grid-template-columns: 1fr;
+  }
+
+  .dataset-snapshot .snapshot-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .dataset-snapshot .snapshot-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .application-cards .card, .application-cards .card button { transition: none !important; }
+}
+
+
+@media (max-width: 1200px) {
+  .snapshot-media iframe {
+    height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .snapshot-media iframe {
+    height: 300px;
+  }
+}
+
+@media (max-width: 600px) {
+  .snapshot-left h2 {
+    font-size: 1.4rem;
+  }
+  .snapshot-left .lead {
+    font-size: 0.95rem;
+  }
+  .snapshot-media iframe {
+    height: 250px;
+  }
+  .components-section {
+    padding: 16px;
+  }
+}

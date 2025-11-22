@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Repository Detail - NNBOM</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+	<link rel="stylesheet" href="assets/css/common.css">
+</head>
+<body>
+	<div id="app">
+		<nav>
+			<div class="logo">
+				<div><i class="fas fa-cogs"></i> NNBOM</div>
+				<div>A better understanding of the evolution of neural networks</div>
+			</div>
+			<div class="nav-links">
+				<a href="index.html">Home</a>
+				<a href="repositories.html">Repositories</a>
+				<a href="analytics">Analytics</a>
+				<a href="tools">Tools</a>
+			</div>
+		</nav>
+
+		<div class="container detail-container" id="detail-body">
+			<div class="repo-header">
+				<div class="repo-icon">
+					<i class="fas fa-database"></i>
+				</div>
+				<div class="repo-title">
+					<div class="title" id="detail-name">Repository Detail</div>
+					<div class="detail-id" id="detail-id"></div>
+				</div>
+			</div>
+
+				<p class="detail-description" id="detail-desc">Loading repository description...</p>
+
+			<div class="domain-line" id="detail-domains"></div>
+
+			<div class="metric-grid" id="detail-metrics"></div>
+
+				<button class="back-link" onclick="window.location.href='repositories.html'">Back to repositories</button>
+		</div>
+	</div>
+
+	<script>
+		(function () {
+				const detailBody = document.getElementById('detail-body');
+				const renderFallback = () => {
+					detailBody.innerHTML = `
+						<p class="detail-description">Repository details not found. Please return to the list and select again.</p>
+						<button class="back-link" onclick="window.location.href='repositories.html'">Back to repositories</button>
+					`;
+				};
+
+			let repo = null;
+			try {
+				repo = JSON.parse(localStorage.getItem('selectedRepo') || 'null');
+			} catch (err) {
+				console.warn('解析仓库数据失败', err);
+			}
+
+			const params = new URLSearchParams(window.location.search);
+			const targetId = params.get('id');
+			if (!repo || (targetId && String(repo.id) !== targetId)) {
+				renderFallback();
+				return;
+			}
+
+			document.getElementById('detail-name').textContent = repo.name || 'Repository';
+			document.getElementById('detail-id').textContent = `ID: ${repo.id}`;
+				document.getElementById('detail-desc').textContent = repo.description || 'No description available.';
+
+			const domainWrap = document.getElementById('detail-domains');
+			if (repo.domains && repo.domains.length) {
+				domainWrap.innerHTML = `
+					<span class="domain-label">Domains:</span>
+					<div class="domain-tags">
+						${repo.domains.map((d) => `<span class="domain-tag">${d}</span>`).join('')}
+					</div>
+				`;
+			} else {
+				domainWrap.style.display = 'none';
+			}
+
+			const metrics = [
+				{ label: 'Stars', value: repo.stars, icon: 'fas fa-star' },
+				{ label: 'Forks', value: repo.forks, icon: 'fas fa-code-branch' },
+				{ label: 'Created', value: repo.created_at, icon: 'fas fa-calendar-alt' },
+				{ label: 'TPL', value: repo.components?.TPL ?? '-', icon: 'fas fa-cubes' },
+				{ label: 'PTM', value: repo.components?.PTM ?? '-', icon: 'fas fa-network-wired' },
+				{ label: 'Module', value: repo.components?.Module ?? '-', icon: 'fas fa-cog' }
+			];
+
+			const metricHtml = metrics.map(metric => `
+				<div class="metric">
+					<div class="metric-top">
+						<div class="metric-icon">
+							<i class="${metric.icon}"></i>
+						</div>
+						<div class="metric-label">${metric.label}</div>
+					</div>
+					<div class="metric-value">${metric.value}</div>
+				</div>
+			`).join('');
+			document.getElementById('detail-metrics').innerHTML = metricHtml;
+		})();
+	</script>
+</body>
+</html>

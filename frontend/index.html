@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>NNBOM</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="assets/css/common.css?v=1">
+	<link rel="stylesheet" href="assets/css/index.css?v=1">
+</head>
+<body>
+	<div id="app">
+		<!-- Navigation Bar -->
+		<nav>
+			<div class="logo">
+				<i class="fas fa-cogs"></i> NNBOM
+			</div>
+			<div class="nav-links">
+				<a href="repositories.html">Repositories</a>
+				<a href="analytics">Analytics</a>
+				<a href="tools">Tools</a>
+			</div>
+		</nav>
+
+		<!-- Hero Section -->
+		<section class="hero">
+			<img src="assets/images/backgrounds/main.jpg" alt="Visualization">
+		</section>
+
+
+		   <!-- Dataset Snapshot + NNBOM Components Cards 合并 -->
+		   <section class="dataset-snapshot">
+			   <div class="snapshot-left">
+				   <h2>What is NNBOM?</h2>
+				   <p class="lead">As AI supply-chain security becomes crucial, a practical, auditable Bill of Materials (BOM) for AI systems is needed. NNBOM provides a minimal, implementable baseline tailored for neural networks—where dependency chains are simpler and code reuse is higher. It catalogs and tracks three key artifacts from open-source AI projects: third-party libraries (TPLs), pretrained models (PTMs), and custom modules. This initial release aims to support future research, tooling, and downstream risk analysis. <strong>(covers 55,997 repositories)</strong></p>
+			   </div>
+			   <div class="snapshot-media">
+				   <img src="assets/images/illustrations/nnbom.svg" alt="NNBOM Diagram" />
+			   </div>
+			   <!-- 四个卡片并排放在下方 -->
+			   <div class="snapshot-cards">
+				   <div class="snapshot-card">
+					   <div class="snapshot-card-top">
+						   <i class="fas fa-cube snapshot-icon"></i>
+						   <div class="snapshot-card-title">TPLs</div>
+					   </div>
+					   <div class="snapshot-card-count">1,894,763</div>
+					   <div class="snapshot-card-sub">External general-purpose libraries (e.g., NumPy) directly used by a project.</div>
+				   </div>
+				   <div class="snapshot-card">
+					   <div class="snapshot-card-top">
+						   <i class="fas fa-cubes snapshot-icon"></i>
+						   <div class="snapshot-card-title">PTMs</div>
+					   </div>
+					   <div class="snapshot-card-count">23,559</div>
+					   <div class="snapshot-card-sub">Publicly released model weights reused for transfer learning or fine-tuning.</div>
+				   </div>
+				   <div class="snapshot-card">
+					   <div class="snapshot-card-top">
+						   <i class="fas fa-cog snapshot-icon"></i>
+						   <div class="snapshot-card-title">Modules</div>
+					   </div>
+					   <div class="snapshot-card-count">3,102,311</div>
+					   <div class="snapshot-card-sub">Project-specific neural network module code providing reusable functionality.</div>
+				   </div>
+				   <div class="snapshot-card">
+					   <div class="snapshot-card-top">
+						   <i class="fas fa-network-wired snapshot-icon"></i>
+						   <div class="snapshot-card-title">Dependencies</div>
+					   </div>
+					   <div class="snapshot-card-count">2,135,351</div>
+					   <div class="snapshot-card-sub">Clone pair (A, B): later depends on earlier — t(A) > t(B) ⇒ A → B.</div>
+				   </div>
+			   </div>
+		   </section>
+
+		<!-- Applications Quick Access -->
+		<section class="applications">
+			<h2>What Can You Do with NNBOM?</h2>
+			<div class="application-cards">
+				<div class="card">
+					<h3>Single-repository Component Assessor and Recommender</h3>
+					<p><strong>Input:</strong> A GitHub repository URL (target repository to analyze).</p>
+					<p><strong>Output:</strong> Component inventory and key metrics; highlights of outdated or newly added modules; recommended components based on co-usage patterns; a list of similar repositories by component similarity.</p>
+					<button>Open Tool</button>
+				</div>
+				<div class="card">
+					<h3>Multi-repository Evolution Analyzer</h3>
+					<p><strong>Input:</strong> A list of repositories.</p>
+					<p><strong>Output:</strong> Aggregated growth and distribution statistics for TPLs, PTMs and modules; measures of module-level dependency expansion distinguishing reused vs newly created modules; reuse and evolution patterns across the corpus.</p>
+					<button>Open Tool</button>
+				</div>
+			</div>
+		</section>
+	</div>
+
+	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+	<script src="assets/js/index.js"></script>
+</body>
+</html>
