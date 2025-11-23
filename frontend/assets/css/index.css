@@ -17,20 +17,7 @@
   margin-top: 6px;
 }
 
-.hero { 
-  border-radius: 12px; 
-  box-shadow: 0 8px 30px rgba(0,0,0,0.15); 
-  margin-bottom: 24px;
-  overflow: hidden;
-  width: 100%;
-}
 
-.hero img { 
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 12px;
-}
 
 .featured-repositories h2, 
 .dataset-snapshot > .snapshot-left h2, 
@@ -101,11 +88,17 @@
 /* Dataset Snapshot — Academic Two-Column Design */
 .dataset-snapshot {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.1fr 0.9fr;
   gap: 28px;
-  align-items: start;
+  align-items: stretch;
   padding: 28px;
   margin-bottom: 24px;
+  background: linear-gradient(135deg, rgba(100,255,218,0.07), rgba(10,25,47,0.75));
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: 0 12px 34px -18px var(--shadow-color), 0 0 26px rgba(100,255,218,0.08);
+  position: relative;
+  overflow: hidden;
 }
 
 .snapshot-left h2 {
@@ -129,16 +122,23 @@
 }
 
 .snapshot-media {
-  display: block;
-  margin-top: 12px;
-  margin-bottom: 12px;
-  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0;
+  margin-bottom: 0;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(9,20,40,0.05);
+  box-shadow: 0 6px 18px rgba(9,20,40,0.08);
+  background: var(--surface-transparent);
+  border: 1px solid var(--border-color);
+  padding: 18px;
+  min-height: 100%;
 }
 
 .snapshot-media img {
-  width: 100%;
+  width: 72%;
   height: auto;
   object-fit: contain;
   border-radius: 8px;
@@ -165,6 +165,23 @@
   font-size: 0.95rem;
   line-height: 1.65;
   font-family: 'Noto Serif', serif;
+}
+
+.dataset-snapshot .snapshot-left,
+.dataset-snapshot .snapshot-media {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px 22px;
+  box-shadow: 0 10px 30px -16px var(--shadow-color);
+  height: 100%;
+}
+
+.dataset-snapshot .snapshot-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
 }
 
 .snapshot-right .snapshot-cards {
@@ -301,7 +318,7 @@
 .application-cards {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 10px;
   align-items: start;
 }
 
@@ -334,6 +351,8 @@
   font-size: 0.95rem;
   line-height: 1.6;
   margin: 0 0 12px 0;
+  text-align: justify;
+  text-justify: inter-word;
 }
 
 .application-cards .card button {
