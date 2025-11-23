@@ -49,7 +49,7 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: var(--nav-height);
+  min-height: var(--nav-height);
   padding: 0 20px;
   position: static;
   background: var(--surface-transparent);
@@ -58,17 +58,31 @@ nav {
   border-radius: 12px;
   box-shadow: 0 10px 30px -15px var(--shadow-color);
   margin: 24px 0;
+  gap: 12px;
 }
 
 nav .logo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   color: var(--primary-color);
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.6px;
 }
 
-nav .logo i {
-  margin-right: 8px;
+nav .logo-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+nav .logo-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.2px;
+  font-family: 'Noto Serif', serif;
+  font-weight: 300;
 }
 
 nav .nav-links {
