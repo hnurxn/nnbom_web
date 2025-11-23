@@ -88,7 +88,7 @@
 /* Dataset Snapshot — Academic Two-Column Design */
 .dataset-snapshot {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: 1fr;
   gap: 28px;
   align-items: stretch;
   padding: 28px;
@@ -126,19 +126,20 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-top: 0;
-  margin-bottom: 0;
+  float: right;
+  width: 38%;
+  max-width: 380px;
+  margin: 0 0 2px 20px;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 6px 18px rgba(9,20,40,0.08);
   background: var(--surface-transparent);
   border: 1px solid var(--border-color);
-  padding: 18px;
-  min-height: 100%;
+  padding: 14px;
 }
 
 .snapshot-media img {
-  width: 72%;
+  width: 100%;
   height: auto;
   object-fit: contain;
   border-radius: 8px;
@@ -174,20 +175,11 @@
   border-radius: 12px;
   padding: 20px 22px;
   box-shadow: 0 10px 30px -16px var(--shadow-color);
-  height: 100%;
 }
 
 .dataset-snapshot .snapshot-left {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 12px;
-}
-
-.snapshot-right .snapshot-cards {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
+  display: block;
+  position: relative;
 }
 
 
@@ -198,6 +190,7 @@
   gap: 20px;
   grid-column: 1 / -1;
   margin-top: 8px;
+  clear: both;
 }
 
 .snapshot-card {
@@ -356,20 +349,26 @@
 }
 
 .application-cards .card button {
-  display: inline-block;
-  padding: 10px 14px;
-  border-radius: 10px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 18px;
+  border-radius: 12px;
   background: var(--primary-color);
   color: var(--bg-color);
   border: none;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
+  width: 78%;
+  max-width: 260px;
+  margin: 6px auto 0;
+  letter-spacing: 0.2px;
   transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
 }
 
 .application-cards .card button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(100,255,218,0.18);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 10px 24px rgba(100,255,218,0.18);
   opacity: 0.98;
 }
 
@@ -391,6 +390,12 @@
 }
 
 @media (max-width: 600px) {
+  .snapshot-left .snapshot-media {
+    float: none;
+    width: 100%;
+    max-width: none;
+    margin: 0 0 12px 0;
+  }
   .dataset-snapshot .snapshot-cards {
     grid-template-columns: 1fr;
   }
@@ -406,12 +411,12 @@
     height: 400px;
   }
 }
-
 @media (max-width: 768px) {
   .snapshot-media iframe {
     height: 300px;
   }
 }
+
 
 @media (max-width: 600px) {
   .snapshot-left h2 {
