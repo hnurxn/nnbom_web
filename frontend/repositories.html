@@ -68,7 +68,20 @@
 									<i class="fas fa-database"></i>
 								</div>
 								<div class="repo-title">
-									<div class="title">{{ repo.name }}</div>
+								<div class="title">
+										<span>{{ repo.full_name || repo.name }}</span>
+										<a
+											v-if="repo.github_url"
+											class="repo-link"
+											:href="repo.github_url"
+											target="_blank"
+											rel="noopener"
+											@click.stop
+											@keydown.enter.stop
+										>
+											<i class="fas fa-external-link-alt"></i>
+										</a>
+									</div>
 								</div>
 							</div>
 

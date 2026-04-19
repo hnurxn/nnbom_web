@@ -35,7 +35,7 @@
 				</div>
 			</div>
 
-				<p class="detail-description" id="detail-desc">Loading repository description...</p>
+			<p class="detail-description" id="detail-desc">Loading repository description...</p>
 
 			<div class="domain-line" id="detail-domains"></div>
 
@@ -69,9 +69,36 @@
 				return;
 			}
 
-			document.getElementById('detail-name').textContent = repo.name || 'Repository';
-			document.getElementById('detail-id').textContent = `ID: ${repo.id}`;
-				document.getElementById('detail-desc').textContent = repo.description || 'No description available.';
+			const getRepoNameOnly = () => {
+				if (repo.repo) return repo.repo;
+				const fullName = repo.full_name || repo.name || '';
+				if (typeof fullName === 'string' && fullName.includes('__')) return fullName.split('__').slice(1).join('__');
+				if (typeof fullName === 'string' && fullName.includes('/')) return fullName.split('/').slice(1).join('/');
+				return fullName;
+			};
+
+			document.getElementById('detail-name').textContent = getRepoNameOnly() || 'Repository';
+			const idEl = document.getElementById('detail-id');
+			if (repo.owner) {
+				idEl.textContent = `Owner: ${repo.owner}`;
+			} else {
+				idEl.textContent = '';
+				idEl.style.display = 'none';
+			}
+			document.getElementById('detail-desc').textContent = repo.description || 'No description available.';
+
+			const headerEl = document.querySelector('.repo-header');
+			if (headerEl && repo.github_url) {
+				headerEl.classList.add('clickable');
+				headerEl.setAttribute('role', 'link');
+				headerEl.setAttribute('tabindex', '0');
+				headerEl.setAttribute('title', 'Open on GitHub');
+				const open = () => window.open(repo.github_url, '_blank', 'noopener');
+				headerEl.addEventListener('click', open);
+				headerEl.addEventListener('keydown', (e) => {
+					if (e.key === 'Enter') open();
+				});
+			}
 
 			const domainWrap = document.getElementById('detail-domains');
 			if (repo.domains && repo.domains.length) {

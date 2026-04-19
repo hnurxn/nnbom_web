@@ -1,8 +1,8 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
-import random
-from datetime import datetime, timedelta
+
+from pymongo import MongoClient, ASCENDING, DESCENDING
 
 # 创建 Flask 应用实例
 app = Flask(__name__)
@@ -10,65 +10,28 @@ app = Flask(__name__)
 # 启用 CORS（跨域资源共享），允许前端跨域访问 API
 CORS(app)
 
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+MONGO_DB = os.getenv("MONGO_DB", "nnbom_db")
+MONGO_REPOS_COLLECTION = os.getenv("MONGO_REPOS_COLLECTION", "repos")
+MONGO_MODULES_COLLECTION = os.getenv("MONGO_MODULES_COLLECTION", "modules")
+
+_mongo_client = None
+
+
+def get_mongo():
+    global _mongo_client
+    if _mongo_client is None:
+        # Keep it simple; fail fast if Mongo is unreachable.
+        _mongo_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=3000)
+        _mongo_client.admin.command("ping")
+    db = _mongo_client[MONGO_DB]
+    return db[MONGO_REPOS_COLLECTION], db[MONGO_MODULES_COLLECTION]
+
 
 # ----- 简单根路由 -----
 @app.route('/')
 def hello():
     return 'Hello, Flask! This is the backend service.'
-
-
-# ----- 仓库数据生成（内存） -----
-# 为了快速构建首页展示，我们在内存中生成随机示例数据（约 50k 条）
-REPO_STORE = None
-
-def generate_repos(n=50000, seed=42):
-    """生成 n 条示例仓库元信息，包含三个 component: TPL, PTM, Module"""
-    random.seed(seed)
-    base_date = datetime(2018, 1, 1)
-    repos = []
-    langs = ['Python', 'C++', 'C', 'JavaScript', 'Lua', 'Rust']
-    domain_pool = ['CV', 'NLP', 'Robotics', 'Healthcare', 'Finance', 'Education', 'Audio', 'Reinforcement']
-    for i in range(n):
-        name = f'nnbom-repo-{i+1:05d}'
-        stars = random.randint(0, 5000)
-        forks = random.randint(0, 2000)
-        days = random.randint(0, 2500)
-        created_at = (base_date + timedelta(days=days)).strftime('%Y-%m-%d')
-        language = random.choice(langs)
-
-        # components counts
-        tpl = random.randint(0, 200)
-        ptm = random.randint(0, 200)
-        module = random.randint(0, 200)
-        total_components = tpl + ptm + module
-
-        domains = random.sample(domain_pool, random.randint(1, min(3, len(domain_pool))))
-
-        repos.append({
-            'id': i+1,
-            'name': name,
-            'description': f'自动生成示例仓库 {name}',
-            'stars': stars,
-            'forks': forks,
-            'created_at': created_at,
-            'language': language,
-            'domains': domains,
-            'components': {
-                'TPL': tpl,
-                'PTM': ptm,
-                'Module': module,
-                'total': total_components
-            }
-        })
-    return repos
-
-
-def ensure_repo_store():
-    global REPO_STORE
-    if REPO_STORE is None:
-        # 生成 50000 条数据，注意：首次生成可能需要数秒
-        REPO_STORE = generate_repos(n=50000)
-    return REPO_STORE
 
 
 # ----- API: 获取仓库列表（分页、排序、搜索） -----
@@ -83,8 +46,6 @@ def api_repos():
       - q (search string in name)
     """
     try:
-        repos = ensure_repo_store()
-
         # query params
         page = int(request.args.get('page', 1))
         per_page = int(request.args.get('per_page', 20))
@@ -92,34 +53,158 @@ def api_repos():
         order = request.args.get('order', 'desc')
         q = request.args.get('q', '').strip().lower()
 
-        # filter
-        filtered = repos
+        repos_col, modules_col = get_mongo()
+
+        page = max(1, page)
+        per_page = min(200, max(1, per_page))
+
+        mongo_filter = {}
         if q:
-            filtered = [r for r in repos if q in r['name'].lower() or q in r['description'].lower()]
+            # Prefer full_name as the canonical identifier; keep description as a fallback search field.
+            mongo_filter["$or"] = [
+                {"full_name": {"$regex": q, "$options": "i"}},
+                {"description": {"$regex": q, "$options": "i"}},
+            ]
 
-        # sort
-        reverse = (order == 'desc')
-        if sort_by == 'stars':
-            filtered.sort(key=lambda r: r['stars'], reverse=reverse)
-        elif sort_by == 'created_at':
-            filtered.sort(key=lambda r: r['created_at'], reverse=reverse)
-        elif sort_by == 'components':
-            filtered.sort(key=lambda r: r['components']['total'], reverse=reverse)
-        elif sort_by in ('tpl', 'ptm', 'module'):
-            comp_map = {
-                'tpl': 'TPL',
-                'ptm': 'PTM',
-                'module': 'Module'
+        sort_dir = DESCENDING if order == "desc" else ASCENDING
+        total = repos_col.count_documents(mongo_filter)
+        projection = {
+            "_id": 1,
+            "projectID": 1,
+            "projectId": 1,
+            "full_name": 1,
+            "description": 1,
+            "stars": 1,
+            "forks": 1,
+            "created_at": 1,
+            "topics": 1,
+            "imports": 1,
+            "pretrainedModels": 1,
+        }
+
+        def to_repo_item(doc, module_count_by_project_id=None):
+            project_id = doc.get("projectID", None)
+            if project_id is None:
+                project_id = doc.get("projectId", None)
+
+            full_name = doc.get("full_name") or ""
+            if not full_name:
+                # Keep a non-empty identifier so the UI doesn't break, but treat this as a data issue.
+                full_name = str(project_id if project_id is not None else doc.get("_id"))
+
+            owner = None
+            repo_name = None
+            if "__" in full_name:
+                owner, repo_name = full_name.split("__", 1)
+            elif "/" in full_name:
+                owner, repo_name = full_name.split("/", 1)
+            github_url = None
+            if owner and repo_name:
+                github_url = f"https://github.com/{owner}/{repo_name}"
+
+            imports = doc.get("imports") or []
+            pretrained_models = doc.get("pretrainedModels") or []
+
+            tpl_count = len(imports) if isinstance(imports, list) else 0
+            ptm_count = len(pretrained_models) if isinstance(pretrained_models, list) else 0
+
+            module_count = 0
+            if project_id is not None:
+                if module_count_by_project_id is not None:
+                    module_count = int(module_count_by_project_id.get(project_id, 0))
+                elif "moduleCount" in doc and doc.get("moduleCount") is not None:
+                    module_count = int(doc.get("moduleCount") or 0)
+                else:
+                    module_count = modules_col.count_documents({"projectID": project_id})
+
+            total_components = tpl_count + ptm_count + module_count
+
+            domains = doc.get("topics")
+            if not isinstance(domains, list):
+                domains = []
+
+            return {
+                # full_name is the canonical identifier for NNBOM.
+                "id": full_name,
+                "full_name": full_name,
+                # Keep "name" for frontend compatibility, but do not treat it as canonical.
+                "name": full_name,
+                "owner": owner,
+                "repo": repo_name,
+                "github_url": github_url,
+                "projectID": project_id,
+                "description": doc.get("description") or "",
+                "stars": int(doc.get("stars") or 0),
+                "forks": int(doc.get("forks") or 0),
+                "created_at": doc.get("created_at") or "",
+                "domains": domains,
+                "components": {
+                    "TPL": tpl_count,
+                    "PTM": ptm_count,
+                    "Module": module_count,
+                    "total": total_components,
+                },
             }
-            key_name = comp_map[sort_by]
-            filtered.sort(key=lambda r: r['components'][key_name], reverse=reverse)
 
-        total = len(filtered)
+        page_items = []
 
-        # paginate
-        start = (page - 1) * per_page
-        end = start + per_page
-        page_items = filtered[start:end]
+        if sort_by in ("module", "components"):
+            # Accurate sort requires module counts; compute a map once, then sort in Python.
+            module_count_by_project_id = {}
+            for row in modules_col.aggregate(
+                [{"$group": {"_id": "$projectID", "c": {"$sum": 1}}}],
+                allowDiskUse=True,
+            ):
+                module_count_by_project_id[row["_id"]] = row["c"]
+
+            docs = list(repos_col.find(mongo_filter, projection))
+            items = [to_repo_item(d, module_count_by_project_id) for d in docs]
+
+            reverse = order == "desc"
+            if sort_by == "module":
+                items.sort(
+                    key=lambda r: (r["components"]["Module"], r["full_name"]),
+                    reverse=reverse,
+                )
+            else:
+                items.sort(
+                    key=lambda r: (r["components"]["total"], r["full_name"]),
+                    reverse=reverse,
+                )
+
+            start = (page - 1) * per_page
+            end = start + per_page
+            page_items = items[start:end]
+        elif sort_by in ("tpl", "ptm"):
+            # Sort accurately on array sizes inside MongoDB.
+            count_field = "tplCount" if sort_by == "tpl" else "ptmCount"
+            src_field = "$imports" if sort_by == "tpl" else "$pretrainedModels"
+            pipeline = [
+                {"$match": mongo_filter},
+                {"$addFields": {count_field: {"$size": {"$ifNull": [src_field, []]}}}},
+                {"$sort": {count_field: sort_dir, "full_name": ASCENDING}},
+                {"$skip": (page - 1) * per_page},
+                {"$limit": per_page},
+                {"$project": projection},
+            ]
+            for doc in repos_col.aggregate(pipeline, allowDiskUse=True):
+                page_items.append(to_repo_item(doc))
+        else:
+            sort_field_map = {
+                "stars": "stars",
+                "forks": "forks",
+                "created_at": "created_at",
+                "full_name": "full_name",
+            }
+            sort_field = sort_field_map.get(sort_by, "stars")
+            cursor = (
+                repos_col.find(mongo_filter, projection)
+                .sort([(sort_field, sort_dir), ("full_name", ASCENDING)])
+                .skip((page - 1) * per_page)
+                .limit(per_page)
+            )
+            for doc in cursor:
+                page_items.append(to_repo_item(doc))
 
         return jsonify({
             'success': True,
@@ -133,25 +218,7 @@ def api_repos():
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
-# ----- 保留旧的 Excel 接口（如果需要） -----
-@app.route('/api/excel-data')
-def get_excel_data():
-    # 如果项目中仍需要读取 backend/data.xlsx，保留此接口
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    excel_path = os.path.join(current_dir, 'data.xlsx')
-    if not os.path.exists(excel_path):
-        return jsonify({'success': False, 'message': 'Excel 文件不存在'}), 404
-    try:
-        import pandas as pd
-        df = pd.read_excel(excel_path, sheet_name=0)
-        data = df.to_dict('records')
-        columns = list(df.columns)
-        return jsonify({'success': True, 'columns': columns, 'data': data, 'total': len(data)})
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
 
 # 启动应用
 if __name__ == '__main__':
-    # 注意：首次运行会在内存中生成约 50k 条示例数据，可能需要几秒钟
     app.run(debug=True, host='0.0.0.0', port=5001)

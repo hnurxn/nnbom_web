@@ -15,6 +15,17 @@
   box-shadow: 0 12px 30px -18px var(--shadow-color);
 }
 
+.detail-container .repo-header.clickable {
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.detail-container .repo-header.clickable:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-color);
+  box-shadow: 0 14px 34px -18px rgba(100,255,218,0.25);
+}
+
 .detail-container .repo-icon {
   width: 54px;
   height: 54px;
