@@ -68,19 +68,10 @@
 									<i class="fas fa-database"></i>
 								</div>
 								<div class="repo-title">
-								<div class="title">
-										<span>{{ repo.full_name || repo.name }}</span>
-										<a
-											v-if="repo.github_url"
-											class="repo-link"
-											:href="repo.github_url"
-											target="_blank"
-											rel="noopener"
-											@click.stop
-											@keydown.enter.stop
-										>
-											<i class="fas fa-external-link-alt"></i>
-										</a>
+									<div class="title">
+										<span>
+											{{ (repo.full_name && repo.full_name.includes('__')) ? repo.full_name.split('__').slice(1).join('__') : (repo.name || repo.full_name) }}
+										</span>
 									</div>
 								</div>
 							</div>
