@@ -31,6 +31,45 @@ def get_mongo():
     db = get_db()
     return db[MONGO_REPOS_COLLECTION], db[MONGO_MODULES_COLLECTION]
 
+def _clamp_int(value, default=20, min_value=1, max_value=200):
+    try:
+        n = int(value)
+    except Exception:
+        n = int(default)
+    return max(min_value, min(max_value, n))
+
+
+def _module_key_expr():
+    # Best-effort normalize different module schemas into a stable string key.
+    # Keep this purely in aggregation expressions so it can be used in pipelines.
+    return {
+        "$toString": {
+            "$ifNull": [
+                "$module_name",
+                {
+                    "$ifNull": [
+                        "$moduleName",
+                        {
+                            "$ifNull": [
+                                "$name",
+                                {
+                                    "$ifNull": [
+                                        "$module",
+                                        {"$ifNull": ["$moduleID", {"$ifNull": ["$moduleId", "$id"]}]},
+                                    ]
+                                },
+                            ]
+                        },
+                    ]
+                },
+            ]
+        }
+    }
+
+
+def _project_id_expr():
+    return {"$ifNull": ["$projectID", "$projectId"]}
+
 
 # ----- 简单根路由 -----
 @app.route('/')
@@ -247,6 +286,283 @@ def api_stats_summary():
             "last_updated": last_updated,
         }
         return jsonify({"success": True, "stats": payload})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@app.route("/api/analytics/summary")
+def api_analytics_summary():
+    """
+    Dataset-level analytics summary for the Analytics page.
+    Returns:
+      - total_repos, unique_tpl, unique_ptm, unique_module
+      - last_updated (from stats collection when available)
+    """
+    try:
+        repos_col, modules_col = get_mongo()
+
+        total_repos = repos_col.count_documents({})
+
+        tpl_unique_pipeline = [
+            {"$project": {"imports": {"$ifNull": ["$imports", []]}}},
+            {"$unwind": "$imports"},
+            {"$addFields": {"k": {"$toString": "$imports"}}},
+            {"$match": {"k": {"$nin": [None, ""]}}},
+            {"$group": {"_id": "$k"}},
+            {"$count": "c"},
+        ]
+        ptm_unique_pipeline = [
+            {"$project": {"pretrainedModels": {"$ifNull": ["$pretrainedModels", []]}}},
+            {"$unwind": "$pretrainedModels"},
+            {"$addFields": {"k": {"$toString": "$pretrainedModels"}}},
+            {"$match": {"k": {"$nin": [None, ""]}}},
+            {"$group": {"_id": "$k"}},
+            {"$count": "c"},
+        ]
+        module_unique_pipeline = [
+            {"$addFields": {"module_key": _module_key_expr()}},
+            {"$match": {"module_key": {"$nin": [None, ""]}}},
+            {"$group": {"_id": "$module_key"}},
+            {"$count": "c"},
+        ]
+
+        tpl_unique = 0
+        r = list(repos_col.aggregate(tpl_unique_pipeline, allowDiskUse=True))
+        if r:
+            tpl_unique = int(r[0].get("c") or 0)
+
+        ptm_unique = 0
+        r = list(repos_col.aggregate(ptm_unique_pipeline, allowDiskUse=True))
+        if r:
+            ptm_unique = int(r[0].get("c") or 0)
+
+        module_unique = 0
+        r = list(modules_col.aggregate(module_unique_pipeline, allowDiskUse=True))
+        if r:
+            module_unique = int(r[0].get("c") or 0)
+
+        last_updated = None
+        try:
+            db = get_db()
+            doc = db["stats"].find_one({"_id": "global_stats"}, {"last_updated": 1})
+            if doc:
+                last_updated = doc.get("last_updated")
+                if isinstance(last_updated, datetime):
+                    if last_updated.tzinfo is None:
+                        last_updated = last_updated.replace(tzinfo=timezone.utc)
+                    last_updated = (
+                        last_updated.replace(microsecond=0)
+                        .isoformat()
+                        .replace("+00:00", "Z")
+                    )
+        except Exception:
+            last_updated = None
+
+        return jsonify(
+            {
+                "success": True,
+                "summary": {
+                    "total_repos": int(total_repos),
+                    "unique_tpl": tpl_unique,
+                    "unique_ptm": ptm_unique,
+                    "unique_module": module_unique,
+                    "last_updated": last_updated,
+                },
+            }
+        )
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@app.route("/api/analytics/top_tpls")
+def api_analytics_top_tpls():
+    try:
+        limit = _clamp_int(request.args.get("limit", 20), default=20, max_value=100)
+        repos_col, _ = get_mongo()
+
+        pipeline = [
+            {"$project": {"pid": _project_id_expr(), "imports": {"$ifNull": ["$imports", []]}}},
+            {"$unwind": "$imports"},
+            {"$addFields": {"k": {"$toString": "$imports"}}},
+            {"$match": {"pid": {"$ne": None}, "k": {"$nin": [None, ""]}}},
+            {"$group": {"_id": {"k": "$k", "p": "$pid"}}},
+            {"$group": {"_id": "$_id.k", "repo_count": {"$sum": 1}}},
+            {"$sort": {"repo_count": -1, "_id": 1}},
+            {"$limit": limit},
+        ]
+        items = [{"name": row["_id"], "repo_count": int(row.get("repo_count") or 0)} for row in repos_col.aggregate(pipeline, allowDiskUse=True)]
+        return jsonify({"success": True, "items": items})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@app.route("/api/analytics/top_ptms")
+def api_analytics_top_ptms():
+    try:
+        limit = _clamp_int(request.args.get("limit", 20), default=20, max_value=100)
+        repos_col, _ = get_mongo()
+
+        pipeline = [
+            {"$project": {"pid": _project_id_expr(), "pretrainedModels": {"$ifNull": ["$pretrainedModels", []]}}},
+            {"$unwind": "$pretrainedModels"},
+            {"$addFields": {"k": {"$toString": "$pretrainedModels"}}},
+            {"$match": {"pid": {"$ne": None}, "k": {"$nin": [None, ""]}}},
+            {"$group": {"_id": {"k": "$k", "p": "$pid"}}},
+            {"$group": {"_id": "$_id.k", "repo_count": {"$sum": 1}}},
+            {"$sort": {"repo_count": -1, "_id": 1}},
+            {"$limit": limit},
+        ]
+        items = [{"name": row["_id"], "repo_count": int(row.get("repo_count") or 0)} for row in repos_col.aggregate(pipeline, allowDiskUse=True)]
+        return jsonify({"success": True, "items": items})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@app.route("/api/analytics/top_modules")
+def api_analytics_top_modules():
+    try:
+        limit = _clamp_int(request.args.get("limit", 20), default=20, max_value=100)
+        _, modules_col = get_mongo()
+
+        pipeline = [
+            {"$addFields": {"module_key": _module_key_expr(), "pid": _project_id_expr()}},
+            {"$match": {"pid": {"$ne": None}, "module_key": {"$nin": [None, ""]}}},
+            {"$group": {"_id": {"k": "$module_key", "p": "$pid"}, "occ": {"$sum": 1}}},
+            {"$group": {"_id": "$_id.k", "repo_count": {"$sum": 1}, "occurrences": {"$sum": "$occ"}}},
+            {"$sort": {"repo_count": -1, "occurrences": -1, "_id": 1}},
+            {"$limit": limit},
+        ]
+        items = [
+            {
+                "name": row["_id"],
+                "repo_count": int(row.get("repo_count") or 0),
+                "occurrences": int(row.get("occurrences") or 0),
+            }
+            for row in modules_col.aggregate(pipeline, allowDiskUse=True)
+        ]
+        return jsonify({"success": True, "items": items})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@app.route("/api/analytics/module/detail")
+def api_analytics_module_detail():
+    """
+    Query params:
+      - name (module key)
+      - limit (top repos, default=20, max=50)
+    """
+    try:
+        name = (request.args.get("name") or "").strip()
+        if not name:
+            return jsonify({"success": False, "message": "missing query param: name"}), 400
+
+        limit = _clamp_int(request.args.get("limit", 20), default=20, max_value=50)
+        repos_col, modules_col = get_mongo()
+
+        pipeline = [
+            {"$addFields": {"module_key": _module_key_expr(), "pid": _project_id_expr()}},
+            {"$match": {"pid": {"$ne": None}, "module_key": name}},
+            {"$group": {"_id": "$pid", "occurrences": {"$sum": 1}}},
+            {"$sort": {"occurrences": -1, "_id": 1}},
+            {"$limit": limit},
+        ]
+
+        per_repo = list(modules_col.aggregate(pipeline, allowDiskUse=True))
+        project_ids = [row["_id"] for row in per_repo if row.get("_id") is not None]
+        repo_map = {}
+        if project_ids:
+            for doc in repos_col.find(
+                {"$or": [{"projectID": {"$in": project_ids}}, {"projectId": {"$in": project_ids}}]},
+                {"projectID": 1, "projectId": 1, "full_name": 1, "stars": 1, "forks": 1, "created_at": 1, "description": 1, "topics": 1},
+            ):
+                pid = doc.get("projectID", None)
+                if pid is None:
+                    pid = doc.get("projectId", None)
+                if pid is not None:
+                    repo_map[pid] = doc
+
+        items = []
+        total_occ = 0
+        for row in per_repo:
+            pid = row["_id"]
+            occ = int(row.get("occurrences") or 0)
+            total_occ += occ
+            r = repo_map.get(pid) or {}
+            full_name = r.get("full_name") or ""
+            items.append(
+                {
+                    "projectID": pid,
+                    "full_name": full_name,
+                    "stars": int(r.get("stars") or 0),
+                    "forks": int(r.get("forks") or 0),
+                    "created_at": r.get("created_at") or "",
+                    "domains": r.get("topics") if isinstance(r.get("topics"), list) else [],
+                    "occurrences": occ,
+                }
+            )
+
+        return jsonify(
+            {
+                "success": True,
+                "module": {"name": name, "total_occurrences": int(total_occ), "repo_count": len(project_ids)},
+                "top_repos": items,
+            }
+        )
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@app.route("/api/analytics/component/detail")
+def api_analytics_component_detail():
+    """
+    Generic drilldown for TPL/PTM.
+    Query params:
+      - type (tpl|ptm)
+      - name (component key)
+      - limit (default=30, max=50)
+    """
+    try:
+        comp_type = (request.args.get("type") or "").strip().lower()
+        name = (request.args.get("name") or "").strip()
+        if comp_type not in ("tpl", "ptm"):
+            return jsonify({"success": False, "message": "type must be tpl or ptm"}), 400
+        if not name:
+            return jsonify({"success": False, "message": "missing query param: name"}), 400
+
+        limit = _clamp_int(request.args.get("limit", 30), default=30, max_value=50)
+        repos_col, _ = get_mongo()
+
+        field = "imports" if comp_type == "tpl" else "pretrainedModels"
+        mongo_filter = {field: name}
+        projection = {"projectID": 1, "projectId": 1, "full_name": 1, "stars": 1, "forks": 1, "created_at": 1, "description": 1, "topics": 1}
+
+        cursor = repos_col.find(mongo_filter, projection).sort([("stars", DESCENDING), ("full_name", ASCENDING)]).limit(limit)
+
+        items = []
+        for doc in cursor:
+            pid = doc.get("projectID", None)
+            if pid is None:
+                pid = doc.get("projectId", None)
+            items.append(
+                {
+                    "projectID": pid,
+                    "full_name": doc.get("full_name") or "",
+                    "stars": int(doc.get("stars") or 0),
+                    "forks": int(doc.get("forks") or 0),
+                    "created_at": doc.get("created_at") or "",
+                    "domains": doc.get("topics") if isinstance(doc.get("topics"), list) else [],
+                }
+            )
+
+        total = repos_col.count_documents(mongo_filter)
+        return jsonify(
+            {
+                "success": True,
+                "component": {"type": comp_type, "name": name, "repo_count": int(total)},
+                "top_repos": items,
+            }
+        )
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 

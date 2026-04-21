@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Analytics - NNBOM</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+	<link rel="stylesheet" href="../assets/css/common.css?v=1">
+	<link rel="stylesheet" href="../assets/css/analytics.css?v=1">
+</head>
+<body>
+	<div id="app">
+		<nav>
+			<div class="logo">
+				<div class="logo-title"><i class="fas fa-cogs"></i> NNBOM</div>
+				<div class="logo-subtitle">A better understanding of the evolution of neural networks</div>
+			</div>
+			<div class="nav-links">
+				<a href="../index.html">Home</a>
+				<a href="../repositories.html">Repositories</a>
+				<a class="active" aria-current="page" href="./">Analytics</a>
+				<a href="../tools">Tools</a>
+			</div>
+		</nav>
+
+		<section class="analytics-hero">
+			<div class="hero-left">
+				<div class="hero-kicker"><i class="fas fa-chart-line"></i> Dataset Analytics</div>
+				<h1>Corpus-level overview</h1>
+				<p class="hero-sub">
+					Frequency views for TPLs / PTMs, plus popular modules with drilldown into representative repositories.
+				</p>
+			</div>
+			<div class="hero-right">
+				<div class="hero-badge">
+					<i class="fas fa-clock"></i>
+					<span class="badge-label">Updated</span>
+					<span class="badge-value" id="stat-updated">-</span>
+				</div>
+			</div>
+		</section>
+
+		<section class="kpi-grid" aria-label="Summary KPIs">
+			<div class="kpi-card">
+				<div class="kpi-top">
+					<div class="kpi-icon"><i class="fas fa-database"></i></div>
+					<div class="kpi-label">Repositories</div>
+				</div>
+				<div class="kpi-value" id="kpi-repos">-</div>
+				<div class="kpi-sub">Total repositories in the corpus.</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-top">
+					<div class="kpi-icon"><i class="fas fa-cube"></i></div>
+					<div class="kpi-label">Unique TPLs</div>
+				</div>
+				<div class="kpi-value" id="kpi-tpl-uniq">-</div>
+				<div class="kpi-sub">Distinct third-party libraries.</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-top">
+					<div class="kpi-icon"><i class="fas fa-cubes"></i></div>
+					<div class="kpi-label">Unique PTMs</div>
+				</div>
+				<div class="kpi-value" id="kpi-ptm-uniq">-</div>
+				<div class="kpi-sub">Distinct pretrained models.</div>
+			</div>
+			<div class="kpi-card">
+				<div class="kpi-top">
+					<div class="kpi-icon"><i class="fas fa-cog"></i></div>
+					<div class="kpi-label">Unique Modules</div>
+				</div>
+				<div class="kpi-value" id="kpi-mod-uniq">-</div>
+				<div class="kpi-sub">Distinct module identifiers.</div>
+			</div>
+		</section>
+
+		<section class="chart-grid">
+			<div class="chart-card">
+				<div class="chart-header">
+					<div>
+						<div class="chart-title">Top TPLs</div>
+						<div class="chart-sub">Counted by repositories that use the TPL.</div>
+					</div>
+					<button class="ghost-btn" id="btn-refresh" title="Refresh analytics">
+						<i class="fas fa-sync"></i>
+					</button>
+				</div>
+				<div class="chart-canvas-wrap">
+					<canvas id="chart-tpl" height="140"></canvas>
+				</div>
+				<div class="mini-table" id="list-tpl" aria-label="Top TPL list"></div>
+			</div>
+
+			<div class="chart-card">
+				<div class="chart-header">
+					<div>
+						<div class="chart-title">Top PTMs</div>
+						<div class="chart-sub">Counted by repositories that reference the PTM.</div>
+					</div>
+				</div>
+				<div class="chart-canvas-wrap">
+					<canvas id="chart-ptm" height="140"></canvas>
+				</div>
+				<div class="mini-table" id="list-ptm" aria-label="Top PTM list"></div>
+			</div>
+
+			<div class="chart-card chart-card-wide">
+				<div class="chart-header">
+					<div>
+						<div class="chart-title">Popular Modules</div>
+						<div class="chart-sub">Ranked by number of repositories containing the module.</div>
+					</div>
+					<div class="chart-actions">
+						<input id="module-filter" class="filter-input" type="text" placeholder="Filter modules (e.g., attention, resnet)" />
+					</div>
+				</div>
+				<div class="chart-split">
+					<div class="chart-canvas-wrap">
+						<canvas id="chart-mod" height="160"></canvas>
+					</div>
+					<div class="mini-table mini-table-scroll" id="list-mod" aria-label="Top module list"></div>
+				</div>
+			</div>
+		</section>
+	</div>
+
+	<div class="modal hidden" id="detail-modal" role="dialog" aria-modal="true" aria-label="Detail dialog">
+		<div class="modal-backdrop" id="modal-backdrop"></div>
+		<div class="modal-panel" role="document">
+			<div class="modal-header">
+				<div class="modal-title" id="modal-title">Detail</div>
+				<button class="icon-btn" id="modal-close" aria-label="Close">
+					<i class="fas fa-times"></i>
+				</button>
+			</div>
+			<div class="modal-meta" id="modal-meta">-</div>
+			<div class="modal-body" id="modal-body"></div>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+	<script src="../assets/js/analytics.js?v=1"></script>
+</body>
+</html>
+
