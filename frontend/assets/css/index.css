@@ -121,6 +121,32 @@
   text-justify: inter-word;
 }
 
+.snapshot-update {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-transparent);
+  color: var(--text-secondary);
+  font-family: 'Noto Serif', serif;
+  font-size: 0.92rem;
+}
+
+.snapshot-update i {
+  color: var(--primary-color);
+}
+
+.snapshot-update-label {
+  letter-spacing: 0.2px;
+}
+
+.snapshot-update-value {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
 .snapshot-media {
   display: flex;
   flex-direction: column;

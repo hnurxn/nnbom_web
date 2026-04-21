@@ -35,6 +35,11 @@
 				   </div>
 				   <h2>What is NNBOM?</h2>
 				   <p class="lead">As AI supply-chain security becomes crucial, a practical, auditable Bill of Materials (BOM) for AI systems is needed. NNBOM provides a minimal, implementable baseline tailored for neural networks—where dependency chains are simpler and code reuse is higher. It catalogs and tracks three key artifacts from open-source AI projects: third-party libraries (TPLs), pretrained models (PTMs), and custom modules. This initial release aims to support future research, tooling, and downstream risk analysis. <strong>(covers 55,997 repositories)</strong></p>
+				   <div class="snapshot-update" aria-live="polite">
+					   <i class="fas fa-clock"></i>
+					   <span class="snapshot-update-label">Updated</span>
+					   <span class="snapshot-update-value" id="stat-updated">-</span>
+				   </div>
 			   </div>
 			   <!-- 四个卡片并排放在下方 -->
 			   <div class="snapshot-cards">
@@ -43,7 +48,7 @@
 						   <i class="fas fa-cube snapshot-icon"></i>
 						   <div class="snapshot-card-title">TPLs</div>
 					   </div>
-					   <div class="snapshot-card-count">1,894,763</div>
+					   <div class="snapshot-card-count" id="stat-tpl">-</div>
 					   <div class="snapshot-card-sub">External general-purpose libraries (e.g., NumPy) directly used by a project.</div>
 				   </div>
 				   <div class="snapshot-card">
@@ -51,7 +56,7 @@
 						   <i class="fas fa-cubes snapshot-icon"></i>
 						   <div class="snapshot-card-title">PTMs</div>
 					   </div>
-					   <div class="snapshot-card-count">23,559</div>
+					   <div class="snapshot-card-count" id="stat-ptm">-</div>
 					   <div class="snapshot-card-sub">Publicly released model weights reused for transfer learning or fine-tuning.</div>
 				   </div>
 				   <div class="snapshot-card">
@@ -59,7 +64,7 @@
 						   <i class="fas fa-cog snapshot-icon"></i>
 						   <div class="snapshot-card-title">Modules</div>
 					   </div>
-					   <div class="snapshot-card-count">3,102,311</div>
+					   <div class="snapshot-card-count" id="stat-mod">-</div>
 					   <div class="snapshot-card-sub">Project-specific neural network module code providing reusable functionality.</div>
 				   </div>
 				   <div class="snapshot-card">
@@ -67,7 +72,7 @@
 						   <i class="fas fa-network-wired snapshot-icon"></i>
 						   <div class="snapshot-card-title">Dependencies</div>
 					   </div>
-					   <div class="snapshot-card-count">2,135,351</div>
+					   <div class="snapshot-card-count" id="stat-dep">-</div>
 					   <div class="snapshot-card-sub">Clone pair (A, B): later depends on earlier — t(A) > t(B) ⇒ A → B.</div>
 				   </div>
 			   </div>

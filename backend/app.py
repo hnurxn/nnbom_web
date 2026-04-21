@@ -3,6 +3,7 @@ from flask_cors import CORS
 import os
 
 from pymongo import MongoClient, ASCENDING, DESCENDING
+from datetime import datetime, timezone
 
 # 创建 Flask 应用实例
 app = Flask(__name__)
@@ -18,13 +19,16 @@ MONGO_MODULES_COLLECTION = os.getenv("MONGO_MODULES_COLLECTION", "modules")
 _mongo_client = None
 
 
-def get_mongo():
+def get_db():
     global _mongo_client
     if _mongo_client is None:
-        # Keep it simple; fail fast if Mongo is unreachable.
         _mongo_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=3000)
         _mongo_client.admin.command("ping")
-    db = _mongo_client[MONGO_DB]
+    return _mongo_client[MONGO_DB]
+
+
+def get_mongo():
+    db = get_db()
     return db[MONGO_REPOS_COLLECTION], db[MONGO_MODULES_COLLECTION]
 
 
@@ -216,6 +220,35 @@ def api_repos():
 
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route("/api/stats/summary")
+def api_stats_summary():
+    """Read precomputed global stats from MongoDB collection `stats`."""
+    try:
+        db = get_db()
+        stats_col = db["stats"]
+
+        doc = stats_col.find_one({"_id": "global_stats"})
+        if not doc:
+            return jsonify({"success": False, "message": "stats not found (_id=global_stats)"}), 404
+
+        last_updated = doc.get("last_updated")
+        if isinstance(last_updated, datetime):
+            if last_updated.tzinfo is None:
+                last_updated = last_updated.replace(tzinfo=timezone.utc)
+            last_updated = last_updated.replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+        payload = {
+            "total_tpl": int(doc.get("total_tpl") or 0),
+            "total_ptm": int(doc.get("total_ptm") or 0),
+            "total_module": int(doc.get("total_module") or 0),
+            "total_dependency": int(doc.get("total_dependency") or 0),
+            "last_updated": last_updated,
+        }
+        return jsonify({"success": True, "stats": payload})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 
