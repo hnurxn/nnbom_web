@@ -374,7 +374,8 @@
   text-justify: inter-word;
 }
 
-.application-cards .card button {
+.application-cards .card button,
+.application-cards .card .tool-open-btn {
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -390,9 +391,11 @@
   margin: 6px auto 0;
   letter-spacing: 0.2px;
   transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+  text-decoration: none;
 }
 
-.application-cards .card button:hover {
+.application-cards .card button:hover,
+.application-cards .card .tool-open-btn:hover {
   transform: translateY(-2px) scale(1.01);
   box-shadow: 0 10px 24px rgba(100,255,218,0.18);
   opacity: 0.98;

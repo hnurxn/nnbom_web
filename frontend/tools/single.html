@@ -48,8 +48,42 @@
 		<section class="content-section">
 			<h2>Output (placeholder)</h2>
 			<div class="placeholder-box" id="output">
-				<div class="placeholder-title">Waiting for input…</div>
-				<div class="placeholder-sub">Future output: component inventory, risk signals, and similar repositories.</div>
+				<div class="placeholder-title">Example report (placeholder)</div>
+				<div class="placeholder-sub">This is a static example preview. You’ll replace it with local execution results later.</div>
+				<div class="example-figure" aria-label="Example figure">
+					<svg viewBox="0 0 640 180" role="img" aria-label="Example: TPL/PTM/Module composition and new vs reused modules">
+						<defs>
+							<linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+								<stop offset="0" stop-color="#64ffda" stop-opacity="0.45"/>
+								<stop offset="1" stop-color="#64ffda" stop-opacity="0.12"/>
+							</linearGradient>
+						</defs>
+						<rect x="12" y="14" width="616" height="152" rx="14" fill="rgba(10,25,47,0.25)" stroke="rgba(100,255,218,0.14)"/>
+						<text x="28" y="44" fill="rgba(204,214,246,0.92)" font-size="14" font-weight="700">Component composition</text>
+						<text x="28" y="64" fill="rgba(136,146,176,0.92)" font-size="12">TPLs</text>
+						<rect x="92" y="54" width="250" height="12" rx="6" fill="url(#g1)"/>
+						<text x="350" y="64" fill="rgba(204,214,246,0.92)" font-size="12" font-weight="700">43</text>
+						<text x="28" y="88" fill="rgba(136,146,176,0.92)" font-size="12">PTMs</text>
+						<rect x="92" y="78" width="6" height="12" rx="6" fill="rgba(136,146,176,0.35)"/>
+						<text x="350" y="88" fill="rgba(204,214,246,0.92)" font-size="12" font-weight="700">0</text>
+						<text x="28" y="112" fill="rgba(136,146,176,0.92)" font-size="12">Modules</text>
+						<rect x="92" y="102" width="232" height="12" rx="6" fill="rgba(136,146,176,0.35)"/>
+						<text x="350" y="112" fill="rgba(204,214,246,0.92)" font-size="12" font-weight="700">40</text>
+
+						<text x="410" y="64" fill="rgba(204,214,246,0.92)" font-size="14" font-weight="700">Modules breakdown</text>
+						<text x="410" y="88" fill="rgba(136,146,176,0.92)" font-size="12">New</text>
+						<rect x="458" y="78" width="150" height="12" rx="6" fill="url(#g1)"/>
+						<text x="616" y="88" text-anchor="end" fill="rgba(204,214,246,0.92)" font-size="12" font-weight="700">32</text>
+						<text x="410" y="112" fill="rgba(136,146,176,0.92)" font-size="12">Reused</text>
+						<rect x="458" y="102" width="38" height="12" rx="6" fill="rgba(136,146,176,0.35)"/>
+						<text x="616" y="112" text-anchor="end" fill="rgba(204,214,246,0.92)" font-size="12" font-weight="700">8</text>
+					</svg>
+				</div>
+				<div class="example-report">
+					<p><strong>Example (single-repository analysis):</strong> Based on the API search for top-recommended repositories created after <strong>January 1, 2025</strong>, the repository <strong>test-time-training/ttt-video-dit</strong> stands out. Created on <strong>April 13, 2025</strong>, it has quickly gained <strong>1.6k stars</strong> and <strong>133 forks</strong>.</p>
+					<p>This repository contains <strong>43 TPLs</strong>, <strong>no PTMs</strong>, and <strong>40 modules</strong>, of which <strong>32</strong> are newly created and <strong>8</strong> are reused. Among the reused modules, the oldest dates back to <strong>2020</strong>, while <strong>4</strong> were introduced in <strong>2024</strong>, indicating that reused modules typically originate from the preceding year.</p>
+					<p>Notably, it introduces a new TPL, <strong>test-time-training</strong>, released on <strong>February 11, 2025</strong>, which provides support for test-time training kernels. According to our similarity analysis based on module composition, the most similar repository is <strong>Auto1111SDK/Auto1111SDK</strong>.</p>
+				</div>
 			</div>
 		</section>
 	</div>
@@ -57,4 +91,3 @@
 	<script src="../assets/js/tools_single.js?v=1"></script>
 </body>
 </html>
-

@@ -195,6 +195,31 @@
 .placeholder-title { color: var(--text-heading); font-weight: 900; margin-bottom: 6px; }
 .placeholder-sub { color: var(--text-secondary); line-height: 1.6; }
 
+.example-figure {
+  margin-top: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(100,255,218,0.12);
+  background: rgba(10,25,47,0.20);
+  padding: 10px;
+  overflow: hidden;
+}
+
+.example-figure svg { width: 100%; height: auto; display: block; }
+
+.example-report {
+  margin-top: 12px;
+  padding: 12px 12px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(100,255,218,0.12);
+  background: rgba(10,25,47,0.22);
+  color: var(--text-primary);
+  line-height: 1.7;
+  font-family: 'Noto Serif', serif;
+}
+
+.example-report p { margin: 0 0 10px 0; }
+.example-report p:last-child { margin-bottom: 0; }
+
 .toast {
   position: fixed;
   right: 16px;
@@ -217,4 +242,3 @@
 @media (max-width: 520px) {
   .tools-hero { padding: 18px; }
 }
-
