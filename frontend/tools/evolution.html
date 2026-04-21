@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Evolution Tool - NNBOM</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+	<link rel="stylesheet" href="../assets/css/common.css?v=1">
+	<link rel="stylesheet" href="../assets/css/tools.css?v=1">
+</head>
+<body>
+	<div id="app">
+		<nav>
+			<div class="logo">
+				<div class="logo-title"><i class="fas fa-cogs"></i> NNBOM</div>
+				<div class="logo-subtitle">A better understanding of the evolution of neural networks</div>
+			</div>
+			<div class="nav-links">
+				<a href="../index.html">Home</a>
+				<a href="../repositories.html">Repositories</a>
+				<a href="../analytics/">Analytics</a>
+				<a href="./">Tools</a>
+			</div>
+		</nav>
+
+		<section class="tools-hero">
+			<div>
+				<div class="hero-kicker"><i class="fas fa-project-diagram"></i> Multi-repository Tool</div>
+				<h1>Evolution Analyzer</h1>
+				<p class="hero-sub">Prototype landing page. Next step: connect to aggregation endpoints for a chosen repo set.</p>
+			</div>
+		</section>
+
+		<section class="content-section">
+			<h2>Input</h2>
+			<div class="form-row">
+				<label for="repo-list" class="form-label">Repositories (one per line)</label>
+				<textarea id="repo-list" class="form-textarea" rows="7" placeholder="owner/repo&#10;owner/repo&#10;..."></textarea>
+			</div>
+			<div class="form-actions">
+				<button class="primary-btn" id="btn-run"><i class="fas fa-play"></i> Run</button>
+				<button class="ghost-btn" id="btn-demo"><i class="fas fa-magic"></i> Fill demo</button>
+				<a class="ghost-btn link-btn" href="./"><i class="fas fa-arrow-left"></i> Back</a>
+			</div>
+			<div class="hint">Tip: this page stores your last list in localStorage.</div>
+		</section>
+
+		<section class="content-section">
+			<h2>Output (placeholder)</h2>
+			<div class="placeholder-box" id="output">
+				<div class="placeholder-title">Waiting for input…</div>
+				<div class="placeholder-sub">Future output: distributions, growth curves, and module reuse insights.</div>
+			</div>
+		</section>
+	</div>
+
+	<script src="../assets/js/tools_evolution.js?v=1"></script>
+</body>
+</html>
+
